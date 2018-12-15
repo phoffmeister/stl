@@ -9,12 +9,12 @@ class Vector3:
         self.z = z
 
     @staticmethod
-    def get_circle(r, z, amount):
+    def get_circle(r, z, amount, deg_offset=0):
         circle = []
         deg = float(360.0 / amount)
         for n in range(amount):
-            x = r * math.sin(math.radians(n * deg))
-            y = r * math.cos(math.radians(n * deg))
+            x = r * math.sin(math.radians(n * deg + deg_offset))
+            y = r * math.cos(math.radians(n * deg + deg_offset))
             circle.append(Vector3(x, y, z))
         return circle
 
@@ -22,7 +22,7 @@ class Vector3:
         return f'{self.x}, {self.y}, {self.z}'
 
     def __repr__(self):
-        return (self.x, self.y, self.z)
+        return f'{self.x}, {self.y}, {self.z}'
 
     def __eq__(self, other):
         return self.x == other.x and \
@@ -103,10 +103,100 @@ class Cylinder(Stl):
 
 
 class Sphere(Stl):
-    def __init__(self, r, facets):
+    def __init__(self, r, facets, rings):
         super().__init__()
+        # upper half
+        top = Vector3(0, 0, r)
+        bottom = Vector3(0, 0, -r)
+        normal_v = Vector3(0, 0, 0)
+        m_ring = Vector3.get_circle(r, 0, facets, 0)
+        old_ring = m_ring
+        new_ring = None
+        # h = [r*0.2]
+        # for n in range(1, rings):
+        #     h.append(h[0] - 0.2 * h[n - 1] + h[n - 1])
+        h = []
+        h_sum = 0
+        for i in range(rings - 1):
+            h_sum += float(r/rings)
+            h.append(h_sum)
+
+        for n in range(rings - 1):
+            new_r = math.sqrt(r**2 - h[n]**2)
+            new_ring = Vector3.get_circle(
+                    new_r,
+                    h[n],
+                    facets,
+                    (n + 1) * 180 / facets)
+            for p in range(facets - 1):
+                self.data.append(Triangle(
+                    normal_v,
+                    old_ring[p],
+                    old_ring[p + 1],
+                    new_ring[p]))
+                self.data.append(Triangle(
+                    normal_v,
+                    old_ring[p + 1],
+                    new_ring[p],
+                    new_ring[p + 1]))
+            self.data.append(Triangle(
+                normal_v,
+                old_ring[-1],
+                old_ring[0],
+                new_ring[-1]))
+            self.data.append(Triangle(
+                normal_v,
+                old_ring[0],
+                new_ring[-1],
+                new_ring[0]))
+            old_ring = new_ring
+        # stitch it to the top
+        for p in range(facets):
+            self.data.append(Triangle(
+                normal_v,
+                top,
+                new_ring[p-1],
+                new_ring[p]))
+
+        old_ring = m_ring
+        for n in range(rings - 1):
+            new_r = math.sqrt(r**2 - h[n]**2)
+            new_ring = Vector3.get_circle(
+                    new_r,
+                    -h[n],
+                    facets,
+                    (n + 1) * 180 / facets)
+            for p in range(facets - 1):
+                self.data.append(Triangle(
+                    normal_v,
+                    old_ring[p],
+                    old_ring[p + 1],
+                    new_ring[p]))
+                self.data.append(Triangle(
+                    normal_v,
+                    old_ring[p + 1],
+                    new_ring[p],
+                    new_ring[p + 1]))
+            self.data.append(Triangle(
+                normal_v,
+                old_ring[-1],
+                old_ring[0],
+                new_ring[-1]))
+            self.data.append(Triangle(
+                normal_v,
+                old_ring[0],
+                new_ring[-1],
+                new_ring[0]))
+            old_ring = new_ring
+        # stitch it to the bottom
+        for p in range(facets):
+            self.data.append(Triangle(
+                normal_v,
+                bottom,
+                new_ring[p-1],
+                new_ring[p]))
 
 
 if __name__ == '__main__':
-    mstl = Cylinder(10, 50, 300)
-    mstl.write_stl("cyl2.stl")
+    mstl = Sphere(10, 160, 80)
+    mstl.write_stl("sphere.stl")
