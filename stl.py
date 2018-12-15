@@ -11,12 +11,14 @@ class Vector3:
     def __str__(self):
         return f'{self.x}, {self.y}, {self.z}'
 
+
 class Triangle:
     def __init__(self, n, a, b, c):
         self.n = n
         self.a = a
         self.b = b
         self.c = c
+
 
 class Stl():
     def __init__(self):
@@ -29,11 +31,12 @@ class Stl():
             f.write('solid rock\n')
             # write triangles n -> a -> b -> c -> 2byte 0
             for tri in self.data:
-                f.write('facet normal %E %E %E\n' % (tri.n.x, tri.n.y, tri.n.z))
+                f.write('facet normal %E %E %E\n' %
+                        (tri.n.x, tri.n.y, tri.n.z))
                 f.write('  outer loop\n')
-                f.write('    vertex %E %E %E\n' %(tri.a.x, tri.a.y, tri.a.z))
-                f.write('    vertex %E %E %E\n' %(tri.b.x, tri.b.y, tri.b.z))
-                f.write('    vertex %E %E %E\n' %(tri.c.x, tri.c.y, tri.c.z))
+                f.write('    vertex %E %E %E\n' % (tri.a.x, tri.a.y, tri.a.z))
+                f.write('    vertex %E %E %E\n' % (tri.b.x, tri.b.y, tri.b.z))
+                f.write('    vertex %E %E %E\n' % (tri.c.x, tri.c.y, tri.c.z))
                 f.write('  endloop\n')
                 f.write('endfacet\n')
             f.write('endsolid rock')
@@ -51,6 +54,7 @@ class Stl():
                 f.write(struct.pack('<3f', tri.b.x, tri.b.y, tri.b.z))
                 f.write(struct.pack('<3f', tri.c.x, tri.c.y, tri.c.z))
                 f.write(struct.pack('\x00'*2))
+
 
 class Cylinder(Stl):
     def __init__(self, r, h, facets):
@@ -79,10 +83,11 @@ class Cylinder(Stl):
         circle = []
         deg = float(360.0 / amount)
         for n in range(amount):
-            x = r * math.sin( math.radians(n * deg))
-            y = r * math.cos( math.radians(n * deg))
+            x = r * math.sin(math.radians(n * deg))
+            y = r * math.cos(math.radians(n * deg))
             circle.append(Vector3(x, y, z))
         return circle
+
 
 if __name__ == '__main__':
     mstl = Cylinder(10, 50, 300)
