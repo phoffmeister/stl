@@ -31,12 +31,11 @@ class Stl():
             f.write('solid rock\n')
             # write triangles n -> a -> b -> c -> 2byte 0
             for tri in self.data:
-                f.write('facet normal %E %E %E\n' %
-                        (tri.n.x, tri.n.y, tri.n.z))
+                f.write(f'facet normal {tri.n.x:E} {tri.n.x:E} {tri.n.z:E}\n')
                 f.write('  outer loop\n')
-                f.write('    vertex %E %E %E\n' % (tri.a.x, tri.a.y, tri.a.z))
-                f.write('    vertex %E %E %E\n' % (tri.b.x, tri.b.y, tri.b.z))
-                f.write('    vertex %E %E %E\n' % (tri.c.x, tri.c.y, tri.c.z))
+                f.write(f'    vertex {tri.a.x:E} {tri.a.y:E} {tri.a.z:E}\n')
+                f.write(f'    vertex {tri.b.x:E} {tri.b.y:E} {tri.b.z:E}\n')
+                f.write(f'    vertex {tri.c.x:E} {tri.c.y:E} {tri.c.z:E}\n')
                 f.write('  endloop\n')
                 f.write('endfacet\n')
             f.write('endsolid rock')
@@ -91,4 +90,4 @@ class Cylinder(Stl):
 
 if __name__ == '__main__':
     mstl = Cylinder(10, 50, 300)
-    mstl.write_stl("cyl.stl")
+    mstl.write_stl("cyl2.stl")
