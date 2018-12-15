@@ -8,6 +8,16 @@ class Vector3:
         self.y = y
         self.z = z
 
+    @staticmethod
+    def get_circle(r, z, amount):
+        circle = []
+        deg = float(360.0 / amount)
+        for n in range(amount):
+            x = r * math.sin(math.radians(n * deg))
+            y = r * math.cos(math.radians(n * deg))
+            circle.append(Vector3(x, y, z))
+        return circle
+
     def __str__(self):
         return f'{self.x}, {self.y}, {self.z}'
 
@@ -72,9 +82,9 @@ class Cylinder(Stl):
     def __init__(self, r, h, facets):
         super().__init__()
         n = Vector3(0, 0, 0)
-        c1 = self._get_circle(r, 0, facets)
+        c1 = Vector3.get_circle(r, 0, facets)
         c1_center = Vector3(0, 0, 0)
-        c2 = self._get_circle(r, h, facets)
+        c2 = Vector3.get_circle(r, h, facets)
         c2_center = Vector3(0, 0, h)
 
         for p in range(len(c1)-1):
@@ -91,14 +101,10 @@ class Cylinder(Stl):
         self.data.append(Triangle(n, c1[-1], c1[0], c2[-1]))
         self.data.append(Triangle(n, c1[0], c2[0], c2[-1]))
 
-    def _get_circle(self, r, z, amount):
-        circle = []
-        deg = float(360.0 / amount)
-        for n in range(amount):
-            x = r * math.sin(math.radians(n * deg))
-            y = r * math.cos(math.radians(n * deg))
-            circle.append(Vector3(x, y, z))
-        return circle
+
+class Sphere(Stl):
+    def __init__(self, r, facets):
+        super().__init__()
 
 
 if __name__ == '__main__':
