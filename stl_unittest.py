@@ -1,5 +1,5 @@
 import unittest
-from stl import Vector3
+from d3obj import Vector3
 
 
 class Vector3Test(unittest.TestCase):
